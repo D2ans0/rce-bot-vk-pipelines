@@ -25,11 +25,12 @@ jobs:
         --tag rce-bot-vk:$(date +%s) \
         --tag rce-bot-vk:latest \
         --tag rce-bot-vk:${{ env.RELEASE_VERSION }} \
-        --tag rce-bot-vk \
-        --output type=local,dest=rce-bot-vk_docker.tar.gz
+        --tag rce-bot-vk
+        
+        docker save rce-bot-vk --output rce-bot-vk_docker.tar.gz
       
     - name: Archive docker artifact
       uses: actions/upload-artifact@v3
       with:
         name: rce-bot-vk_docker
-        path: rce-bot-vk_docker*
+        path: rce-bot-vk_docker.tar.gz
