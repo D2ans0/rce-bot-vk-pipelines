@@ -32,4 +32,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: rce-bot-vk_docker
-        path: target/rce-bot-vk_docker.tar.gz
+        path: rce-bot-vk_docker.tar.gz
