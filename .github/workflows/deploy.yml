@@ -1,0 +1,54 @@
+name: deploy
+on:
+  workflow_dispatch:
+  workflow_call:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: rce-bot-vk_docker
+          path: ./
+
+      - name: Map secrets to environment
+        run: |
+          echo JMX_USERNAME=${{ secret.JMX_USERNAME }} >> $GITHUB_ENV
+          echo JMX_PASSWORD=${{ secret.JMX_PASSWORD }} >> $GITHUB_ENV
+          echo RCEBOT_GROUP_TOKEN=${{ secret.RCEBOT_GROUP_TOKEN }} >> $GITHUB_ENV
+          echo AGROMONITORING_API_KEY=${{ secret.AGROMONITORING_API_KEY }} >> $GITHUB_ENV
+          echo OPENWEATHER_API_KEY=${{ secret.OPENWEATHER_API_KEY }} >> $GITHUB_ENV
+          echo SAUCENAO_USER_ID=${{ secret.SAUCENAO_AUTH }} >> $GITHUB_ENV
+          echo SAUCENAO_TOKEN=${{ secret.SAUCENAO_TOKEN }} >> $GITHUB_ENV
+          echo SAUCENAO_AUTH=${{ secret.SAUCENAO_USER_ID }} >> $GITHUB_ENV
+          
+      - name: Resolve variables in configs
+        run: |
+          envsubst < config/bot.ini > config/bot.ini
+          envsubst < config/jmxremote.access > config/bot.ini
+          envsubst < config/jmxremote.password > config/bot.ini
+          cat config/*
+
+      - name: Copy files to remote
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASS }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "rce-bot-vk_docker.tar.gz,config/*"
+          target: "./bot_deploy/"
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASS }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            ls -lah ./bot_deploy/
+            docker load ./bot_deploy/rce-bot-vk_docker.tar.gz
