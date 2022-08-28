@@ -49,3 +49,7 @@ jobs:
   Docker:
     needs: [build]
     uses: ./.github/workflows/docker-image.yml
+
+  Deploy:
+      needs: [Docker]
+      uses: ./.github/workflows/deploy.yml
