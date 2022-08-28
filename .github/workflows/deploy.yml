@@ -2,10 +2,10 @@ name: deploy
 on:
   workflow_dispatch:
   workflow_call:
+  
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
 
@@ -26,6 +26,15 @@ jobs:
           echo SAUCENAO_AUTH=${{ secrets.SAUCENAO_USER_ID }} >> $GITHUB_ENV
           
       - name: Resolve variables in configs
+        env:
+          JMX_USERNAME: ${{ secrets.JMX_USERNAME }}
+          JMX_PASSWORD: ${{ secrets.JMX_PASSWORD }}
+          RCEBOT_GROUP_TOKEN: ${{ secrets.RCEBOT_GROUP_TOKEN }}
+          AGROMONITORING_API_KEY: ${{ secrets.AGROMONITORING_API_KEY }}
+          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+          SAUCENAO_USER_ID: ${{ secrets.SAUCENAO_AUTH }}
+          SAUCENAO_TOKEN: ${{ secrets.SAUCENAO_TOKEN }}
+          SAUCENAO_AUTH: ${{ secrets.SAUCENAO_USER_ID }}
         run: |
           envsubst < config/bot.ini > config/bot.ini
           envsubst < config/jmxremote.access > config/bot.ini
