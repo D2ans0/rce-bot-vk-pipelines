@@ -37,8 +37,8 @@ jobs:
           SAUCENAO_AUTH: ${{ secrets.SAUCENAO_USER_ID }}
         run: |
           envsubst < config/bot.ini > config/bot.ini
-          envsubst < config/jmxremote.access > config/bot.ini
-          envsubst < config/jmxremote.password > config/bot.ini
+          envsubst < config/jmxremote.access > config/jmxremote.access
+          envsubst < config/jmxremote.password > config/jmxremote.password
           cat config/*
 
       - name: Copy files to remote
