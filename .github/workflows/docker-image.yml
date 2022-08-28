@@ -1,0 +1,35 @@
+name: Docker_Image
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build_docker_image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3  
+    
+    - uses: actions/download-artifact@v3
+      with:
+        name: rce-bot-vk_jar
+        path: ./
+
+    - name: Get package version
+      run: |
+        echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+    - name: Build the Docker image
+      run: |
+        docker build . \
+        --file Dockerfile \
+        --tag rce-bot-vk:$(date +%s) \
+        --tag rce-bot-vk:latest \
+        --tag rce-bot-vk:${{ env.RELEASE_VERSION }}
+        --tag rce-bot-vk \
+        --output type=local,dest=rce-bot-vk_docker.tar.gz
+      
+    - name: Archive docker artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: rce-bot-vk_docker
+        path: target/rce-bot-vk_docker.tar.gz
