@@ -41,7 +41,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "rce-bot-vk_docker.tar.gz,config/*"
+          source: "rce-bot-vk_docker.tar.gz,docker-compose.yml,config/*"
           target: "./bot_deploy/"
 
       - name: Deploy to server
