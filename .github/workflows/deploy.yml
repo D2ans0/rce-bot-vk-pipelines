@@ -13,17 +13,6 @@ jobs:
         with:
           name: rce-bot-vk_docker
           path: ./
-
-      - name: Map secrets to environment
-        run: |
-          echo JMX_USERNAME=${{ secrets.JMX_USERNAME }} >> $GITHUB_ENV
-          echo JMX_PASSWORD=${{ secrets.JMX_PASSWORD }} >> $GITHUB_ENV
-          echo RCEBOT_GROUP_TOKEN=${{ secrets.RCEBOT_GROUP_TOKEN }} >> $GITHUB_ENV
-          echo AGROMONITORING_API_KEY=${{ secrets.AGROMONITORING_API_KEY }} >> $GITHUB_ENV
-          echo OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }} >> $GITHUB_ENV
-          echo SAUCENAO_USER_ID=${{ secrets.SAUCENAO_AUTH }} >> $GITHUB_ENV
-          echo SAUCENAO_TOKEN=${{ secrets.SAUCENAO_TOKEN }} >> $GITHUB_ENV
-          echo SAUCENAO_AUTH=${{ secrets.SAUCENAO_USER_ID }} >> $GITHUB_ENV
           
       - name: Resolve variables in configs
         env:
@@ -36,9 +25,13 @@ jobs:
           SAUCENAO_TOKEN: ${{ secrets.SAUCENAO_TOKEN }}
           SAUCENAO_AUTH: ${{ secrets.SAUCENAO_USER_ID }}
         run: |
-          envsubst < config/bot.ini > config/bot.ini
-          envsubst < config/jmxremote.access > config/jmxremote.access
-          envsubst < config/jmxremote.password > config/jmxremote.password
+          envsubst < config/bot.ini > config/bot.ini.tmp
+          envsubst < config/jmxremote.access > config/jmxremote.access.tmp
+          envsubst < config/jmxremote.password > config/jmxremote.password.tmp
+          
+          mv config/bot.ini.tmp config/bot.ini
+          mv config/jmxremote.access.tmp config/jmxremote.access
+          mv config/jmxremote.password.tmp config/jmxremote.password
           cat config/*
 
       - name: Copy files to remote
