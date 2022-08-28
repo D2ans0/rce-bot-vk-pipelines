@@ -60,4 +60,4 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             ls -lah ./bot_deploy/
-            docker load ./bot_deploy/rce-bot-vk_docker.tar.gz
+            docker load < ./bot_deploy/rce-bot-vk_docker.tar.gz
