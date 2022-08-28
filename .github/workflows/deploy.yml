@@ -16,14 +16,14 @@ jobs:
 
       - name: Map secrets to environment
         run: |
-          echo JMX_USERNAME=${{ secret.JMX_USERNAME }} >> $GITHUB_ENV
-          echo JMX_PASSWORD=${{ secret.JMX_PASSWORD }} >> $GITHUB_ENV
-          echo RCEBOT_GROUP_TOKEN=${{ secret.RCEBOT_GROUP_TOKEN }} >> $GITHUB_ENV
-          echo AGROMONITORING_API_KEY=${{ secret.AGROMONITORING_API_KEY }} >> $GITHUB_ENV
-          echo OPENWEATHER_API_KEY=${{ secret.OPENWEATHER_API_KEY }} >> $GITHUB_ENV
-          echo SAUCENAO_USER_ID=${{ secret.SAUCENAO_AUTH }} >> $GITHUB_ENV
-          echo SAUCENAO_TOKEN=${{ secret.SAUCENAO_TOKEN }} >> $GITHUB_ENV
-          echo SAUCENAO_AUTH=${{ secret.SAUCENAO_USER_ID }} >> $GITHUB_ENV
+          echo JMX_USERNAME=${{ secrets.JMX_USERNAME }} >> $GITHUB_ENV
+          echo JMX_PASSWORD=${{ secrets.JMX_PASSWORD }} >> $GITHUB_ENV
+          echo RCEBOT_GROUP_TOKEN=${{ secrets.RCEBOT_GROUP_TOKEN }} >> $GITHUB_ENV
+          echo AGROMONITORING_API_KEY=${{ secrets.AGROMONITORING_API_KEY }} >> $GITHUB_ENV
+          echo OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }} >> $GITHUB_ENV
+          echo SAUCENAO_USER_ID=${{ secrets.SAUCENAO_AUTH }} >> $GITHUB_ENV
+          echo SAUCENAO_TOKEN=${{ secrets.SAUCENAO_TOKEN }} >> $GITHUB_ENV
+          echo SAUCENAO_AUTH=${{ secrets.SAUCENAO_USER_ID }} >> $GITHUB_ENV
           
       - name: Resolve variables in configs
         run: |
