@@ -2,9 +2,9 @@ version: "3"
 services:
   bot:
     image: rce-bot-vk:latest
-#     build:
-#       context: ./
-#       dockerfile: dockerfile
+    # build:
+      # context: ./
+      # dockerfile: dockerfile
     environment:
       - JMX_ACCESS_FILE=/app/config/jmxremote.access
       - JMX_PASSWORD_FILE=/app/config/jmxremote.password
@@ -15,7 +15,13 @@ services:
 
     ports:
       - "80:8080" # HTTP callback port
-      - "443:8080" # HTTPS callback port
       - "9010:9010" # RMI
     volumes:
       - "./config:/app/config"
+
+  db:
+    image: mysql:latest
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=136900
+      - MYSQL_DATABASE=rce_bot
