@@ -53,4 +53,6 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             ls -lah ./bot_deploy/
+            chmod 600 ./bot_deploy/config/*
             docker load < ./bot_deploy/rce-bot-vk_docker.tar.gz
+          # cd ./bot_deploy/; docker-compose up -d #uncomment on ready to deploy
