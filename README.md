@@ -1,5 +1,6 @@
 # Rce Bot
 [![Build](https://github.com/D2ans0/rce-bot-vk-pipelines/actions/workflows/build.yml/badge.svg)](https://github.com/D2ans0/rce-bot-vk-pipelines/actions/workflows/build.yml)
+[![CodeQL](https://github.com/D2ans0/rce-bot-vk-pipelines/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/D2ans0/rce-bot-vk-pipelines/actions/workflows/codeql-analysis.yml)
 
 RceBot group bot repository [https://vk.com/rce_bot](https://vk.com/rce_bot) | [FAQ](https://vk.com/@rce_bot-introduce)
 
