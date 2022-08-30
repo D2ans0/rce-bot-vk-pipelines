@@ -1,27 +1,31 @@
 version: "3"
 services:
+  db:
+    image: mysql:latest
+    container_name: rce_bot_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=136900
+      - MYSQL_PORT=3306
+    volumes:
+      - "./db:/var/lib/mysql"
+
+
   bot:
     image: rce-bot-vk:latest
     # build:
       # context: ./
       # dockerfile: dockerfile
+    container_name: rce_bot
     environment:
       - JMX_ACCESS_FILE=/app/config/jmxremote.access
       - JMX_PASSWORD_FILE=/app/config/jmxremote.password
       - JMX_HOST=0.0.0.0
       - JMX_PORT=9010
       - LAUNCH_ARGS= |
-          -cb 8080
-
+          -cb 8080 -tm
     ports:
       - "80:8080" # HTTP callback port
       - "9010:9010" # RMI
     volumes:
       - "./config:/app/config"
-
-  db:
-    image: mysql:latest
-    restart: unless-stopped
-    environment:
-      - MYSQL_ROOT_PASSWORD=136900
-      - MYSQL_DATABASE=rce_bot
