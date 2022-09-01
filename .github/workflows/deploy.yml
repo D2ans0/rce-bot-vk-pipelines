@@ -8,12 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/download-artifact@v3
         with:
           name: rce-bot-vk_docker
           path: ./
-          
+
+
       - name: Resolve variables in configs
         env:
           JMX_USERNAME: ${{ secrets.JMX_USERNAME }}
@@ -25,14 +25,17 @@ jobs:
           SAUCENAO_TOKEN: ${{ secrets.SAUCENAO_TOKEN }}
           SAUCENAO_AUTH: ${{ secrets.SAUCENAO_USER_ID }}
         run: |
-          envsubst < config/bot.ini > config/bot.ini.tmp
-          envsubst < config/jmxremote.access > config/jmxremote.access.tmp
-          envsubst < config/jmxremote.password > config/jmxremote.password.tmp
-          
-          mv config/bot.ini.tmp config/bot.ini
-          mv config/jmxremote.access.tmp config/jmxremote.access
-          mv config/jmxremote.password.tmp config/jmxremote.password
+          for FILE in config/*; do
+          envsubst < $FILE > $FILE.tmp
+          mv $FILE.tmp $FILE
+          done
+          sed -i "s/DB_URI=localhost/DB_URI=db/" config/bot.ini
           cat config/*
+          
+          envsubst < docker_compose.yml > docker_compose.yml.tmp
+          mv docker_compose.yml.tmp docker_compose.yml
+        # envsubst-ting docker-compose is groundwork for future variable substitutions
+
 
       - name: Copy files to remote
         uses: appleboy/scp-action@master
@@ -44,7 +47,8 @@ jobs:
           source: "rce-bot-vk_docker.tar.gz,docker-compose.yml,config/*"
           target: "./bot_deploy/"
 
-      - name: Deploy to server
+
+      - name: Delivery to server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -55,4 +59,20 @@ jobs:
             ls -lah ./bot_deploy/
             chmod 600 ./bot_deploy/config/*
             docker load < ./bot_deploy/rce-bot-vk_docker.tar.gz
-          # cd ./bot_deploy/; docker-compose up -d #uncomment on ready to deploy
+
+      - name: Check if it's a test commit
+      - uses: actions-ecosystem/action-regex-match@v2
+        id: regex-match
+        with:
+          text: ${{ github.event.comment.body }}
+          regex: 'no.?deploy.*?\b|test.*?\b'
+
+      - name: Deploy
+        if: ${{ steps.regex-match.outputs.match == '' }} #skip if "no.?deploy" or "test.*" is present
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: "cd ./bot_deploy/; docker-compose down; docker-compose up -d"

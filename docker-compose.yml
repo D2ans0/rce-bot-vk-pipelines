@@ -7,9 +7,11 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=136900
       - MYSQL_PORT=3306
+      - MYSQL_ROOT_HOST=% #allows for connections to the root user from any hosts
+    # ports:
+    #   - "3306:3306"
     volumes:
       - "./db:/var/lib/mysql"
-
 
   bot:
     image: rce-bot-vk:latest
@@ -18,12 +20,13 @@ services:
       # dockerfile: dockerfile
     container_name: rce_bot
     environment:
-      - JMX_ACCESS_FILE=/app/config/jmxremote.access
-      - JMX_PASSWORD_FILE=/app/config/jmxremote.password
       - JMX_HOST=0.0.0.0
       - JMX_PORT=9010
       - LAUNCH_ARGS= |
           -cb 8080 -tm
+
+    depends_on:
+      - "db"
     ports:
       - "80:8080" # HTTP callback port
       - "9010:9010" # RMI
