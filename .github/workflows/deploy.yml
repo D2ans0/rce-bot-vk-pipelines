@@ -32,8 +32,8 @@ jobs:
           sed -i "s/DB_URI=localhost/DB_URI=db/" config/bot.ini
           cat config/*
           
-          envsubst < docker_compose.yml > docker_compose.yml.tmp
-          mv docker_compose.yml.tmp docker_compose.yml
+          envsubst < docker-compose.yml > docker-compose.yml.tmp
+          mv docker-compose.yml.tmp docker-compose.yml
         # envsubst-ting docker-compose is groundwork for future variable substitutions
 
 
