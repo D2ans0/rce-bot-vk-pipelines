@@ -61,7 +61,7 @@ jobs:
             docker load < ./bot_deploy/rce-bot-vk_docker.tar.gz
 
       - name: Check if it's a test commit
-      - uses: actions-ecosystem/action-regex-match@v2
+        uses: actions-ecosystem/action-regex-match@v2
         id: regex-match
         with:
           text: ${{ github.event.comment.body }}
