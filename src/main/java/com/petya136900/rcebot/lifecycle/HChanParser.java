@@ -1,6 +1,8 @@
 package com.petya136900.rcebot.lifecycle;
 
 import com.google.re2j.Matcher;
+import com.petya136900.rcebot.db.MySqlConnector;
+import com.petya136900.rcebot.rce.timetable.TimetableException;
 import com.petya136900.rcebot.tools.JsonParser;
 import com.petya136900.rcebot.tools.RegexpTools;
 import org.jsoup.Connection;
@@ -12,6 +14,8 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class HChanParser {
@@ -19,9 +23,20 @@ public class HChanParser {
     private static final String HCHAN_URL = "hchan.live/";
     private static final String NEW  = "manga/new";
     private static final String TAGS = "tags";
+    private int foundTotal=0;
+    private int parsed=0;
+    private int imagesTotal=0;
+    private int imagesUpload=0;
+    private int fromDB=0;
+    private Function<String, String> coverToAttachConverter;
+
+    public HChanParser setCoverToAttachConverter(Function<String, String> coverToAttachConverter) {
+        this.coverToAttachConverter = coverToAttachConverter;
+        return this;
+    }
     public static void test() {
         try {
-            HChanManga[] mangas = getNew();
+            HChanManga[] mangas = new HChanParser().getNew();
             for(HChanManga manga : mangas) {
                 System.out.println(JsonParser.toJson(manga)+"\n\n");
             }
@@ -29,42 +44,63 @@ public class HChanParser {
             e.printStackTrace();
         }
     }
-    public static HChanManga[] getNew() throws IOException {
-        return parseRows(getPage(HCHAN_SCHEME + HCHAN_URL + NEW));
+    public HChanManga[] getNew() throws IOException {
+        return getNew(null);
     }
-    public static HChanManga[] getByTags(String[] tags) throws IOException {
+    public HChanManga[] getNew(Consumer<String> statusConsumer) throws IOException {
+        return parseRows(getPage(HCHAN_SCHEME + HCHAN_URL + NEW), statusConsumer);
+    }
+    public HChanManga[] getByTags(String[] tags, Consumer<String> statusConsumer) throws IOException {
         String tagsString = Arrays.stream(tags)
                 .filter(tag->tag!=null&&tag.trim().length()>0)
                 .map(String::trim)
                 .collect(Collectors.joining("+"));
         if(tagsString.length()<1)
             throw new IllegalArgumentException("Ошибка: тэги указаны некорректно");
-        return parseRows(getPage(HCHAN_SCHEME + HCHAN_URL + TAGS + "/" + tagsString));
+        return parseRows(getPage(HCHAN_SCHEME + HCHAN_URL + TAGS + "/" + tagsString),statusConsumer);
     }
-    private static HChanManga[] parseRows(Document page) throws IOException {
+    private HChanManga[] parseRows(Document page, Consumer<String> statusConsumer) throws IOException {
         Elements content_rows = page.getElementsByClass("content_row");
         ArrayList<HChanManga> comics = new ArrayList<>();
+        // TODO: foundTotal = content_rows.size();
         for(Element content_row: content_rows) {
-            comics.add(parseRow(content_row));
+            comics.add(parseRow(content_row, statusConsumer));
+            parsed++;
+            statusConsumer.accept(("Parsed: "+parsed+"/"+content_rows.size())+(fromDB>0?" ("+fromDB+" from DB)":""));
         }
         return comics.toArray(new HChanManga[comics.size()]);
     }
-    private static HChanManga parseRow(Element content_row) throws IOException {
+    private HChanManga parseRow(Element content_row, Consumer<String> statusConsumer) throws IOException {
         HChanManga comic = new HChanManga();
         Element manga_img = content_row.getElementsByClass("manga_images").get(0);
         if(manga_img!=null) {
-            comic.setLink(manga_img.getElementsByTag("a").get(0).absUrl("href"));
+            comic.setLink(manga_img.getElementsByTag("a").get(0).absUrl("href").trim());
             // TODO: CHECK IF EXIST by link in DB
+            HChanManga comicFromDb = MySqlConnector.getHChanByLink(comic.getLink());
+            if(comicFromDb.existInDB()) {
+                System.out.println("Манга в БД");
+                fromDB++;
+                return comicFromDb;
+            } else {
+                System.out.println("Манги нет в БД");
+            }
             String thumbUrlBlur = manga_img.getElementsByTag("img").get(0).absUrl("src");
             if(thumbUrlBlur.trim().trim().length()>0)
                 comic.setThumbImgUrl(thumbUrlBlur.replaceFirst("_blur",""));
         }
+        Elements descriptionContainer = content_row.getElementsByClass("tags");
+        if(descriptionContainer.size()>0)
+            comic.setDescription(descriptionContainer.get(0).text());
         Document comicPage;
         if(le(comic.getLink())) {
             comicPage = getPage(comic.getLink());
             Element cover = comicPage.getElementById("cover");
-            if(cover!=null)
+            if(cover!=null) {
                 comic.setCoverUrl(cover.attr("src"));
+                if(coverToAttachConverter!=null) {
+                    comic.setCoverAttach(coverToAttachConverter.apply(comic.getCoverUrl()));
+                }
+            }
             Element manga_images = comicPage.getElementById("manga_images");
             if(manga_images!=null)
                 comic.setReadLink(manga_images.getElementsByTag("a").get(0).absUrl("href"));
@@ -98,6 +134,12 @@ public class HChanParser {
                     .filter(s->s.length()>0)
                     .forEach(tags::add);
         comic.setTags(tags.toArray(new String[tags.size()]));
+        try {
+            MySqlConnector.saveHCHan(comic,false);
+        } catch (TimetableException e) {
+            System.err.println("Can't save HChan");
+            e.printStackTrace();
+        }
         return comic;
     }
     private static boolean le(String link) {
