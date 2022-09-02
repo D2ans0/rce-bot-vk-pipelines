@@ -1,6 +1,5 @@
-package com.petya136900.rcebot.lifecycle;
+package com.petya136900.rcebot.other.hchan;
 
-import com.petya136900.rcebot.db.HChanSQLObject;
 import com.petya136900.rcebot.tools.JsonParser;
 
 import java.util.ArrayList;
@@ -44,6 +43,7 @@ public class HChanManga { // >.content_row
         setItemContent(hcFB.getItemContent());
         setItemLink(hcFB.getItemLink());
         setCoverAttach(hcFB.getCoverAttach());
+        setParsed(hcFB.isParsed());
         setDescription(hcFB.getDescription());
         setPageUrls(hcFB.getPageUrls());
         setTitle(hcFB.getTitle());
@@ -146,6 +146,13 @@ public class HChanManga { // >.content_row
     }
     public HChanManga setCoverAttach(String coverAttach) {
         this.coverAttach = coverAttach;
+        return this;
+    }
+    public boolean isParsed() {
+        return parsed;
+    }
+    public HChanManga setParsed(boolean parsed) {
+        this.parsed = parsed;
         return this;
     }
 }

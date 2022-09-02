@@ -6,40 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.re2j.Pattern;
-import com.petya136900.rcebot.handlers.BotSettingsHandler;
-import com.petya136900.rcebot.handlers.CabOnDayHandler;
-import com.petya136900.rcebot.handlers.CabinetHandler;
-import com.petya136900.rcebot.handlers.CabsOnWeekHandler;
-import com.petya136900.rcebot.handlers.CallBack1Handler;
-import com.petya136900.rcebot.handlers.CallOnWeekHandler;
-import com.petya136900.rcebot.handlers.CallsHandler;
-import com.petya136900.rcebot.handlers.CreateKeyboardHandler;
-import com.petya136900.rcebot.handlers.DebugHandler;
-import com.petya136900.rcebot.handlers.EnterHandler;
-import com.petya136900.rcebot.handlers.FaqHandler;
-import com.petya136900.rcebot.handlers.FixMainMenuHandler;
-import com.petya136900.rcebot.handlers.FurryHandler;
-import com.petya136900.rcebot.handlers.GeoHandler;
-import com.petya136900.rcebot.handlers.HostNameHandler;
-import com.petya136900.rcebot.handlers.InfoAboutClientHandler;
-import com.petya136900.rcebot.handlers.MultiHandler;
-import com.petya136900.rcebot.handlers.NothingHandler;
-import com.petya136900.rcebot.handlers.NotifyHandler;
-import com.petya136900.rcebot.handlers.NotifyHandlerHelp;
-import com.petya136900.rcebot.handlers.NotifyHandlerHelp2;
-import com.petya136900.rcebot.handlers.PairOnWeekHandler;
-import com.petya136900.rcebot.handlers.PayloadTextHandler;
-import com.petya136900.rcebot.handlers.RegTestHandler;
-import com.petya136900.rcebot.handlers.RememberHandler;
-import com.petya136900.rcebot.handlers.SayHandler;
-import com.petya136900.rcebot.handlers.SpamHandler;
-import com.petya136900.rcebot.handlers.StopHandler;
-import com.petya136900.rcebot.handlers.TeacherHandler;
-import com.petya136900.rcebot.handlers.TestEditKeyHandler;
-import com.petya136900.rcebot.handlers.TestHandler;
-import com.petya136900.rcebot.handlers.TimetableHandler;
-import com.petya136900.rcebot.handlers.TransHandler;
-import com.petya136900.rcebot.handlers.WeatherHandler;
+import com.petya136900.rcebot.handlers.*;
 import com.petya136900.rcebot.tools.ArrayTools;
 import com.petya136900.rcebot.tools.JsonParser;
 import com.petya136900.rcebot.vk.VK;
@@ -60,7 +27,7 @@ public class HandlerMapping {
 		addHandler("(^|^( ))+(пар|расписани|замен)+([а-я]{1})+($|( ))+",new TimetableHandler()); // \s
 		addHandler("^(test|тест)$",new TestHandler());
 		addHandler("^(db+.?status)",new DbStatusHandler());
-		//addHandler("^(hchan)",new HChanHandler());
+		addHandler("^(hchan)",new HChanHandler());
 		addHandler("((транс|trans)+(([^a-zа-я])*)?)$",new TransHandler());
 		addHandler("((debug)+(([^a-zа-я])*)?)$",new DebugHandler());
 		addHandler("^(furry|фурри|anime|аниме)",new FurryHandler());
@@ -202,7 +169,7 @@ public class HandlerMapping {
 			}} catch (Exception e) { vkContent.reply("{L}Stage is null"); }
 		});
 		//////////////////////
-		//addPayloadHandler("^(hchan)",new HChanHandler());
+		addPayloadHandler("^(hchan)",new HChanHandler());
 		addPayloadHandler("^text",new PayloadTextHandler());
 		addPayloadHandler("^test_payload_handler",new InfoAboutClientHandler());
 		addPayloadHandler("^pairs",new TimetableHandler());
@@ -212,7 +179,7 @@ public class HandlerMapping {
 		addPayloadHandler("^cab_on_day",new CabOnDayHandler());
 		addPayloadHandler("^say",new SayHandler());
 		//
-		//addCallbackPayloadHandler("^(hchan)",new HChanHandler());
+		addCallbackPayloadHandler("^(hchan)",new HChanHandler());
 		addCallbackPayloadHandler("^callback1", new CallBack1Handler());
 	}	
 	public static void   addHandler(String regex, HandlerInterface handler) {
