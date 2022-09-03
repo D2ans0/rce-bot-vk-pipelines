@@ -1,3 +1,11 @@
+### Build stage ###
+FROM maven:3.8.6-eclipse-temurin-8 as rce_bot_build
+COPY src /build/src
+COPY pom.xml /build
+RUN mvn -f /build/pom.xml clean -B package -DskipTests -Dmaven.test.skip=true
+
+
+### Package stage ###
 FROM adoptopenjdk/openjdk8:alpine-jre
 
 WORKDIR /app/
@@ -9,9 +17,12 @@ ENV JMX_PASSWORD_FILE=/app/config/jmxremote.password
 ENV JMX_PORT=9010
 ENV JMX_HOST=0.0.0.0
 
-COPY ${JAR_FILE} app.jar
+COPY --from=rce_bot_build /build/target/RceBot-*-*.jar app.jar
 
-ENTRYPOINT java \
+# Set config permissions and start app
+ENTRYPOINT \
+    chmod 600 /app/config -R; \
+    java \
     -Dsun.management.jmxremote.handlers=java.util.logging.ConsoleHandler \
     -Dcom.sun.management.jmxremote.local.only=false \
     -Dcom.sun.management.jmxremote.ssl=false \
