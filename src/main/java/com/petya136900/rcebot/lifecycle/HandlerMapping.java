@@ -39,12 +39,13 @@ public class HandlerMapping {
 		addHandler("(^(spam))",new SpamHandler());
 		addHandler("(^спутник|geo)",new GeoHandler());		
 		addHandler("(ув.домлен.)",new NotifyHandler());
-		addHandler("^(help|помощь|команды|справка)",new FaqHandler());
+		addHandler("^(help|помощь|команды|справка|faq)",new FaqHandler());
 		addHandler("(^(звонк))", new CallsHandler());
 		addHandler("^(вход)$", new EnterHandler());
 		addHandler("^(каб|кабинет|палат)", new CabinetHandler());
 		addHandler("^(препод|tdh47)", new TeacherHandler());
 		addHandler("^(say|скажи)",new SayHandler());
+		addHandler("^(trace|get)", new CloudFlareTraceHandler());
 		addHandler("^names$", x->x.reply("Текущие имена: \n"+Stream.of(Mentions.getNames().split("\\|"))
 			.filter(y->y!=null&&y.length()>0)
 			.distinct()
